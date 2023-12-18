@@ -113,14 +113,45 @@
           }
         }
         .volume-slider {
-          width: 0;
+          width: 100%;
+          -webkit-appearance: none;
+          appearance: none;
           cursor: pointer;
+          background: #ccc;
           transform-origin: left;
+          outline: none;
+          border-radius: 15px;
+          height: 20px;
+          height: 6px;
+          background: #ccc;
           transform: scaleX(0);
           transition: width 150ms ease-in-out, transform 150ms ease-in-out;
           &:focus-within {
             width: 100px;
+            background: #d3d3d3;
             transform: scaleX(1);
+          }
+          &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            background: white;
+            height: 20px;
+            width: 20px;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: 0.2s ease-in-out;
+            transform: rotateZ(var(--thumb-rotate, 0deg));
+          }
+          &::-moz-range-thumb {
+            height: 20px;
+            width: 20px;
+            background: transparent;
+            // background-image: url("https://ibaslogic.github.io/hosted-assets/smile.png");
+            background-size: cover;
+            border: none;
+            border-radius: 100%;
+            transform: rotateZ(var(--thumb-rotate, 0deg));
+            transition: 0.2s ease-in-out;
           }
         }
 

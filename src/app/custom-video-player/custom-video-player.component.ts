@@ -12,7 +12,7 @@ import {
   templateUrl: './custom-video-player.component.html',
   styleUrls: ['./custom-video-player.component.scss'],
 })
-export class CustomVideoPlayerComponent implements OnInit {
+export class CustomVideoPlayerComponent {
   @ViewChild('videoPlayer') videoPlayer!: ElementRef;
   @ViewChild('volumeSlider') volumeSlider!: ElementRef;
   @ViewChild('videoContainer') videoContainer!: ElementRef;
@@ -60,22 +60,7 @@ export class CustomVideoPlayerComponent implements OnInit {
 
     this.rangeSlider.nativeElement.style.background = backgroundGradient;
   }
-  ngOnInit() {
-    // this.updateSliderStyles();
-  }
 
-  // onSliderInput(event: Event): void {
-  //   const tempSliderValue = Number((event.target as HTMLInputElement).value);
-  //   this.sliderValue = tempSliderValue;
-
-  //   this.updateSliderStyles();
-  // }
-
-  // updateSliderStyles(): void {
-  //   const progress =
-  //     (this.sliderValue / this.rangeSlider.nativeElement.max) * 100;
-  //   this.rangeSlider.nativeElement.style.background = `#fff`;
-  // }
   statusBarClick($event: MouseEvent) {
     const el = $event.target as HTMLElement;
     const clickX = $event.offsetX;

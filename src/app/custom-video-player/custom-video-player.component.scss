@@ -117,13 +117,13 @@
           -webkit-appearance: none;
           appearance: none;
           cursor: pointer;
-          background: #ccc;
           transform-origin: left;
           outline: none;
           border-radius: 15px;
           height: 20px;
           height: 6px;
-          background: #ccc;
+          background: linear-gradient(to right, #a3a3a3 0%, #a3a3a3 100%);
+          //   background: #a3a3a3;
           transform: scaleX(0);
           transition: width 150ms ease-in-out, transform 150ms ease-in-out;
           &:focus-within {

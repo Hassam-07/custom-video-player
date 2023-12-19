@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   HostListener,
+  OnInit,
   Renderer2,
   ViewChild,
 } from '@angular/core';
@@ -11,7 +12,7 @@ import {
   templateUrl: './custom-video-player.component.html',
   styleUrls: ['./custom-video-player.component.scss'],
 })
-export class CustomVideoPlayerComponent {
+export class CustomVideoPlayerComponent implements OnInit {
   @ViewChild('videoPlayer') videoPlayer!: ElementRef;
   @ViewChild('volumeSlider') volumeSlider!: ElementRef;
   @ViewChild('videoContainer') videoContainer!: ElementRef;
@@ -25,6 +26,7 @@ export class CustomVideoPlayerComponent {
   @ViewChild('timeline', { static: true }) timeline!: ElementRef;
   @ViewChild('currentTimeElem') currentTimeElem!: ElementRef;
   @ViewChild('totalTimeElem') totalTimeElem!: ElementRef;
+  @ViewChild('rangeSlider') rangeSlider!: ElementRef;
 
   isPlaying = false;
   volumeLevel = 'high';
@@ -47,22 +49,33 @@ export class CustomVideoPlayerComponent {
         this.videoPlayer.nativeElement.duration
       );
     });
-    // this.videoPlayer.nativeElement.addEventListener('timeupdate', () => {
-    //   this.currentTime = this.formatDuration(
-    //     this.videoPlayer.nativeElement.currentTime
-    //   );
-
-    //   const percent =
-    //     (this.videoPlayer.nativeElement.currentTime /
-    //       this.videoPlayer.nativeElement.duration) *
-    //     100;
-    //   this.renderer.setStyle(
-    //     this.timeline.nativeElement,
-    //     '--progress-position',
-    //     `${100 - percent}%`
-    //   );
-    // });
+    this.onVolumeChange();
   }
+  onVolumeChange(): void {
+    // const volumeSlider = document.querySelector('.volume-slider') as HTMLInputElement;
+    const volumeValue = parseFloat(this.rangeSlider.nativeElement.value);
+
+    const fillPercentage = (volumeValue * 100).toFixed(2);
+    const backgroundGradient = `linear-gradient(to right, #fff 0%, #fff ${fillPercentage}%, #a3a3a3 ${fillPercentage}%, #a3a3a3 100%)`;
+
+    this.rangeSlider.nativeElement.style.background = backgroundGradient;
+  }
+  ngOnInit() {
+    // this.updateSliderStyles();
+  }
+
+  // onSliderInput(event: Event): void {
+  //   const tempSliderValue = Number((event.target as HTMLInputElement).value);
+  //   this.sliderValue = tempSliderValue;
+
+  //   this.updateSliderStyles();
+  // }
+
+  // updateSliderStyles(): void {
+  //   const progress =
+  //     (this.sliderValue / this.rangeSlider.nativeElement.max) * 100;
+  //   this.rangeSlider.nativeElement.style.background = `#fff`;
+  // }
   statusBarClick($event: MouseEvent) {
     const el = $event.target as HTMLElement;
     const clickX = $event.offsetX;

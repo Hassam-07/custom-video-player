@@ -27,13 +27,16 @@ export class CustomVideoPlayerComponent {
   @ViewChild('currentTimeElem') currentTimeElem!: ElementRef;
   @ViewChild('totalTimeElem') totalTimeElem!: ElementRef;
   @ViewChild('rangeSlider') rangeSlider!: ElementRef;
+  @ViewChild('speedOptions') speedOptions!: ElementRef;
+  @ViewChild('playbackSpeed') playbackSpeed!: ElementRef;
 
   isPlaying = false;
   volumeLevel = 'high';
-  playbackRates = [1, 1.25, 1.5, 2];
-  currentPlaybackRateIndex = 0;
+  playbackRates = [2, 1.5, 1, 0.75, 0.5];
+  currentPlaybackRateIndex = 2;
   currentTime = '0:00';
   duration = '0:00';
+  showSpeedOptions = false;
 
   constructor(private renderer: Renderer2) {}
   ngAfterViewInit(): void {
@@ -177,12 +180,44 @@ export class CustomVideoPlayerComponent {
         break;
     }
   }
+  toggleSpeedOptions(): void {
+    this.showSpeedOptions = !this.showSpeedOptions;
+  }
 
-  changePlaybackSpeed(): void {
-    this.currentPlaybackRateIndex =
-      (this.currentPlaybackRateIndex + 1) % this.playbackRates.length;
-    const newPlaybackRate = this.playbackRates[this.currentPlaybackRateIndex];
-    this.videoPlayer.nativeElement.playbackRate = newPlaybackRate;
+  setPlaybackRate(rate: number): void {
+    if (this.videoPlayer) {
+      this.videoPlayer.nativeElement.playbackRate = rate;
+    }
+    this.currentPlaybackRateIndex = this.playbackRates.indexOf(rate);
+
+    // Remove 'active' class from all li elements
+    this.speedOptions.nativeElement
+      .querySelectorAll('li')
+      .forEach((li: HTMLElement) => {
+        this.renderer.removeClass(li, 'active');
+      });
+    const clickedLi = this.speedOptions.nativeElement.querySelector(
+      `[data-speed="${rate}"]`
+    );
+    if (clickedLi) {
+      this.renderer.addClass(clickedLi, 'active');
+    }
+    this.showSpeedOptions = false;
+  }
+
+  @HostListener('mouseenter', ['$event'])
+  onMouseEnter(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (target?.classList?.contains('playback-speed')) {
+      this.showSpeedOptions = true;
+    }
+  }
+
+  @HostListener('mouseleave', ['$event'])
+  onMouseLeave(event: MouseEvent): void {
+    if (!this.speedOptions.nativeElement.contains(event.relatedTarget)) {
+      this.showSpeedOptions = false;
+    }
   }
   updateTimeDisplay(): void {
     this.currentTime = this.formatDuration(

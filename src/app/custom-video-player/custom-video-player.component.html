@@ -58,10 +58,31 @@
         <div class="total-time" #totalTimeElem>{{ duration }}</div>
       </div>
 
-      <button class="speed-btn wide-btn" (click)="changePlaybackSpeed()">
+      <!-- <button class="speed-btn wide-btn" (click)="changePlaybackSpeed()">
         {{ playbackRates[currentPlaybackRateIndex] }}x
-      </button>
-
+      </button> -->
+      <div class="playback-content">
+        <button class="playback-speed" (click)="toggleSpeedOptions()">
+          <span #playbackSpeed class="material-symbols-outlined">
+            slow_motion_video
+          </span>
+        </button>
+        <ul
+          class="speed-options"
+          #speedOptions
+          [ngClass]="{ show: showSpeedOptions }"
+        >
+          <li
+            *ngFor="let rate of playbackRates"
+            (click)="setPlaybackRate(rate)"
+            [class.active]="
+              currentPlaybackRateIndex === playbackRates.indexOf(rate)
+            "
+          >
+            {{ rate }}x
+          </li>
+        </ul>
+      </div>
       <button class="full-screen-btn" (click)="toggleFullScreen()">
         <svg class="open" viewBox="0 0 24 24">
           <path

@@ -173,6 +173,60 @@
         gap: 0.25rem;
         flex-grow: 1;
       }
+      .playback-content {
+        display: flex;
+        position: relative;
+        .playback-speed {
+          text-align: center;
+          align-items: center;
+          display: flex;
+          &:hover {
+            ul.speed-options {
+              &:hover {
+                opacity: 1;
+              }
+            }
+          }
+        }
+        ul.speed-options {
+          position: absolute;
+          list-style: none;
+          left: -30px;
+          bottom: 45px;
+          width: 80px;
+          padding: 0;
+          margin: 0;
+          overflow: hidden;
+          opacity: 0;
+          border-radius: 4px;
+          pointer-events: none;
+          background: #fff;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+          transition: opacity 0.13s ease;
+          &.show {
+            opacity: 1;
+            pointer-events: auto;
+          }
+          li {
+            cursor: pointer;
+            color: #000;
+            font-size: 14px;
+            margin: 2px 0;
+            padding: 5px 0 5px 15px;
+            transition: all 0.1s ease;
+            &:where(&:first-child, &:last-child) {
+              margin: 0px;
+            }
+            &:hover {
+              background: #f2f0f0;
+            }
+            &.active {
+              color: #000;
+              background: #d3d3d3;
+            }
+          }
+        }
+      }
       .speed {
         .main-btn {
           position: relative;

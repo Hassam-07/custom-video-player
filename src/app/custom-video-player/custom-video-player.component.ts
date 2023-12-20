@@ -22,13 +22,14 @@ export class CustomVideoPlayerComponent {
   @ViewChild('volumeLowIcon') volumeLowIcon!: ElementRef;
   @ViewChild('volumeMutedIcon') volumeMutedIcon!: ElementRef;
   @ViewChild('timelineIndicator') timelineIndicator!: ElementRef;
-  // @ViewChild('timelineContainer') timelineContainer!: ElementRef;
+  @ViewChild('timelineProgress') timelineProgress!: ElementRef;
   @ViewChild('timeline', { static: true }) timeline!: ElementRef;
   @ViewChild('currentTimeElem') currentTimeElem!: ElementRef;
   @ViewChild('totalTimeElem') totalTimeElem!: ElementRef;
   @ViewChild('rangeSlider') rangeSlider!: ElementRef;
   @ViewChild('speedOptions') speedOptions!: ElementRef;
   @ViewChild('playbackSpeed') playbackSpeed!: ElementRef;
+  // @ViewChild('timelineIndicator') timelineIndicator!: ElementRef;
 
   isPlaying = false;
   volumeLevel = 'high';
@@ -37,11 +38,17 @@ export class CustomVideoPlayerComponent {
   currentTime = '0:00';
   duration = '0:00';
   showSpeedOptions = false;
-
+  chapters = [
+    { name: 'Downloading', startTime: 0, endTime: 30 },
+    { name: 'Installing', startTime: 30, endTime: 60 },
+    { name: 'Completed', startTime: 60, endTime: 68 },
+  ];
+  activeChapterIndex: number | null = null;
   constructor(private renderer: Renderer2) {}
   ngAfterViewInit(): void {
     this.videoPlayer.nativeElement.addEventListener('timeupdate', () => {
       this.updateTimeDisplay();
+      this.updateTimeline();
     });
     this.videoPlayer?.nativeElement.addEventListener('volumechange', () => {
       this.updateVolume();
@@ -51,6 +58,7 @@ export class CustomVideoPlayerComponent {
       this.duration = this.formatDuration(
         this.videoPlayer.nativeElement.duration
       );
+      // this.createTimelineDivisions();
     });
     this.onVolumeChange();
   }
@@ -223,6 +231,7 @@ export class CustomVideoPlayerComponent {
     this.currentTime = this.formatDuration(
       this.videoPlayer.nativeElement.currentTime
     );
+    this.updateActiveChapter();
   }
   formatDuration(time: number): string {
     const minutes = Math.floor(time / 60);
@@ -243,5 +252,71 @@ export class CustomVideoPlayerComponent {
     } else if (this.videoPlayer.nativeElement.msRequestFullscreen) {
       this.videoPlayer.nativeElement.msRequestFullscreen();
     }
+  }
+
+  updateTimeline(): void {
+    const percentComplete =
+      (this.videoPlayer.nativeElement.currentTime /
+        this.videoPlayer.nativeElement.duration) *
+      100;
+
+    // Move the timeline indicator
+    this.renderer.setStyle(
+      this.timelineIndicator.nativeElement,
+      'left',
+      percentComplete + '%'
+    );
+
+    // Divide the timeline into parts based on chapters
+    const timelineParts = this.chapters.map((chapter) => {
+      const partStart =
+        (chapter.startTime / this.videoPlayer.nativeElement.duration) * 100;
+      const partEnd =
+        (chapter.endTime / this.videoPlayer.nativeElement.duration) * 100;
+      return { partStart, partEnd };
+    });
+
+    const borderSize = 0.2; // Adjust the border size as needed
+
+    // Create a linear gradient with black border between parts
+    let gradient = `linear-gradient(to right, `;
+    timelineParts.forEach((part, index) => {
+      gradient += `#a3a3a3 ${part.partStart}%, #a3a3a3 ${
+        part.partStart + borderSize
+      }%, `;
+      gradient += `#fff ${part.partStart + borderSize}%, #fff ${
+        part.partEnd - borderSize
+      }%, `;
+      gradient += `#a3a3a3 ${part.partEnd - borderSize}%, #a3a3a3 ${
+        part.partEnd
+      }%`;
+
+      if (index !== timelineParts.length - 1) {
+        gradient += `, `;
+      }
+    });
+
+    // Update the timeline progress
+    this.renderer.setStyle(this.timeline.nativeElement, 'background', gradient);
+  }
+
+  updateActiveChapter(): void {
+    const currentTime = this.videoPlayer.nativeElement.currentTime;
+
+    for (let i = 0; i < this.chapters.length; i++) {
+      const chapter = this.chapters[i];
+      if (currentTime >= chapter.startTime && currentTime < chapter.endTime) {
+        this.activeChapterIndex = i;
+        return;
+      }
+    }
+
+    // No active chapter found, reset index
+    this.activeChapterIndex = null;
+  }
+  calculateChapterWidth(chapterIndex: number): number {
+    const chapter = this.chapters[chapterIndex];
+    const totalDuration = this.videoPlayer.nativeElement.duration;
+    return ((chapter.endTime - chapter.startTime) / totalDuration) * 100;
   }
 }

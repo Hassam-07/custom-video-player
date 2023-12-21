@@ -53,12 +53,14 @@ export class CustomVideoPlayerComponent {
     this.videoPlayer?.nativeElement.addEventListener('volumechange', () => {
       this.updateVolume();
     });
+    this.videoPlayer.nativeElement.addEventListener('ended', () => {
+      this.isPlaying = false;
+    });
 
     this.videoPlayer.nativeElement.addEventListener('loadedmetadata', () => {
       this.duration = this.formatDuration(
         this.videoPlayer.nativeElement.duration
       );
-      // this.createTimelineDivisions();
     });
     this.onVolumeChange();
   }
@@ -234,9 +236,17 @@ export class CustomVideoPlayerComponent {
     this.updateActiveChapter();
   }
   formatDuration(time: number): string {
-    const minutes = Math.floor(time / 60);
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+    const formattedHours = hours > 0 ? `${hours}:` : '';
+    const formattedMinutes = `${
+      minutes < 10 && hours > 0 ? '0' : ''
+    }${minutes}`;
+    const formattedSeconds = `${seconds < 10 ? '0' : ''}${seconds}`;
+
+    return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
   }
   skip(duration: any): void {
     this.videoPlayer.nativeElement.currentTime += duration;

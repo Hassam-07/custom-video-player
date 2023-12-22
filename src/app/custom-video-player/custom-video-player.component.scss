@@ -74,6 +74,29 @@
     z-index: 100;
     opacity: 0;
     transition: opacity 150ms ease-in-out;
+    &.error {
+      // pointer-events: none;
+      opacity: 0.5;
+      cursor: not-allowed;
+      .timeline-container {
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      .controls {
+        button {
+          pointer-events: none;
+          cursor: not-allowed;
+        }
+        .volume-container {
+          pointer-events: none;
+          cursor: not-allowed;
+          .volume-slider {
+            pointer-events: none;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
 
     &::before {
       content: "";
@@ -90,6 +113,7 @@
       gap: 0.5rem;
       padding: 0.25rem;
       align-items: center;
+
       .play-pause-btn {
         .play-icon,
         .pause-icon {
@@ -489,5 +513,71 @@
         right: 0;
       }
     }
+  }
+}
+.offline-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  // gap: 12px;
+  .offline {
+    font-size: 1.6rem;
+    line-height: 3.2rem;
+    // margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .checkInternet {
+    font-family: "Roboto", sans-serif;
+    font-size: 1rem;
+    line-height: 2rem;
+    font-weight: 450;
+  }
+  .tryAgain-btn {
+    color: #0089ff;
+    /* border-color: rgba(255, 255, 255, 0.2); */
+    border: 1px solid #000;
+    border-radius: 20px;
+    font-weight: 550;
+    font-family: sans-serif;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 25px;
+    background: transparent;
+  }
+}
+.style-scope {
+  // background-color: #282828;
+  max-height: 28px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  color: #fff;
+  z-index: 2030;
+  display: flex;
+  align-items: center;
+  transition: max-height 1.6s 1s;
+  &.online-state {
+    background-color: green;
+    max-height: 0px;
+  }
+
+  &.offline-state {
+    background-color: #282828;
+    max-height: 28px;
+  }
+  .status-banner {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    text-align: center;
+    width: 100%;
+    font-family: "Roboto", sans-serif;
+    font-size: 0.89rem;
+    line-height: 2rem;
+    font-weight: 500;
   }
 }

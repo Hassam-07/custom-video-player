@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   HostListener,
+  NgZone,
   OnInit,
   Renderer2,
   ViewChild,
@@ -31,6 +32,9 @@ export class CustomVideoPlayerComponent {
   @ViewChild('playbackSpeed') playbackSpeed!: ElementRef;
   // @ViewChild('timelineIndicator') timelineIndicator!: ElementRef;
 
+  isVideoError = false;
+  isOnline = navigator.onLine;
+  currentState = this.isOnline ? 'ONLINE' : 'OFFLINE';
   isPlaying = false;
   volumeLevel = 'high';
   playbackRates = [2, 1.5, 1, 0.75, 0.5];
@@ -44,7 +48,7 @@ export class CustomVideoPlayerComponent {
     { name: 'Completed', startTime: 60, endTime: 68 },
   ];
   activeChapterIndex: number | null = null;
-  constructor(private renderer: Renderer2) {}
+  constructor(private renderer: Renderer2, private zone: NgZone) {}
   ngAfterViewInit(): void {
     this.videoPlayer.nativeElement.addEventListener('timeupdate', () => {
       this.updateTimeDisplay();
@@ -328,5 +332,31 @@ export class CustomVideoPlayerComponent {
     const chapter = this.chapters[chapterIndex];
     const totalDuration = this.videoPlayer.nativeElement.duration;
     return ((chapter.endTime - chapter.startTime) / totalDuration) * 100;
+  }
+
+  @HostListener('window:online', ['$event'])
+  onOnlineEvent(event: Event): void {
+    this.zone.run(() => {
+      // this.isOnline = true;
+      this.currentState = 'ONLINE';
+      // Show a snackbar or perform any other actions when back online
+    });
+  }
+
+  @HostListener('window:offline', ['$event'])
+  onOfflineEvent(event: Event): void {
+    this.zone.run(() => {
+      this.isOnline = false;
+      this.currentState = 'OFFLINE';
+    });
+  }
+
+  tryAgain(): void {
+    // This function will be called when the "Try Again" button is clicked
+    window.location.reload();
+  }
+  handleVideoError() {
+    this.isVideoError = true;
+    // Disable other controls or perform additional actions as needed
   }
 }

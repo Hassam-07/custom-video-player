@@ -514,6 +514,23 @@
       }
     }
   }
+  .error-icon-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: black;
+    .error-icon {
+      margin-bottom: 16px;
+      i {
+        font-size: 5rem;
+      }
+    }
+    .error-message {
+      font-size: 16px;
+    }
+  }
 }
 .offline-content {
   width: 100%;
@@ -579,5 +596,11 @@
     font-size: 0.89rem;
     line-height: 2rem;
     font-weight: 500;
+  }
+  .custom-snackbar-class {
+    background-color: #0089ff;
+    button {
+      color: red;
+    }
   }
 }

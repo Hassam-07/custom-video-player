@@ -7,6 +7,7 @@ import {
   Renderer2,
   ViewChild,
 } from '@angular/core';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-custom-video-player',
@@ -48,7 +49,11 @@ export class CustomVideoPlayerComponent {
     { name: 'Completed', startTime: 60, endTime: 68 },
   ];
   activeChapterIndex: number | null = null;
-  constructor(private renderer: Renderer2, private zone: NgZone) {}
+  constructor(
+    private renderer: Renderer2,
+    private zone: NgZone,
+    private snackBar: MatSnackBar
+  ) {}
   ngAfterViewInit(): void {
     this.videoPlayer.nativeElement.addEventListener('timeupdate', () => {
       this.updateTimeDisplay();
@@ -348,6 +353,7 @@ export class CustomVideoPlayerComponent {
     this.zone.run(() => {
       this.isOnline = false;
       this.currentState = 'OFFLINE';
+      this.showSnackbar();
     });
   }
 
@@ -358,5 +364,13 @@ export class CustomVideoPlayerComponent {
   handleVideoError() {
     this.isVideoError = true;
     // Disable other controls or perform additional actions as needed
+  }
+  showSnackbar(): void {
+    const message = 'Internet issue. Try again';
+    const action = 'Try Again';
+    const config = new MatSnackBarConfig();
+    config.panelClass = ['custom-snackbar-class'];
+    config.duration = 5000;
+    const snackBarRef = this.snackBar.open(message, action, config);
   }
 }

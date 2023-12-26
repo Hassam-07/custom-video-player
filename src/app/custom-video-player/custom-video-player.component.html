@@ -123,10 +123,17 @@
     (click)="togglePlayPause()"
     src="../../assets/video1.mp4"
   ></video>
+  <div class="error-icon-container" *ngIf="isVideoError">
+    <!-- Error icon and message -->
+    <div class="error-icon"><i class="fas fa-exclamation-circle"></i></div>
+    <div class="error-message">An error occurred. Please try again.</div>
+  </div>
 </div>
+<!-- <ng-template> -->
+<!-- </ng-template> -->
 
 <ng-template #offlineContent>
-  <div class="offline-content">
+  <!-- <div class="offline-content">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 192 195"
@@ -283,14 +290,14 @@
       Please check your internet connection and try again
     </p>
     <button class="tryAgain-btn" (click)="tryAgain()">Try Again</button>
-  </div>
+  </div> -->
 </ng-template>
 
-<div
+<!-- <div
   class="style-scope"
   [ngClass]="currentState === 'ONLINE' ? 'online-state' : 'offline-state'"
 >
   <div class="status-banner">
     {{ currentState === "ONLINE" ? "Back online" : "No Internet connection" }}
   </div>
-</div>
+</div> -->

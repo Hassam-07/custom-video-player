@@ -9,12 +9,30 @@ import {
 } from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
+class VideoPlayerState {
+  isVideoError: boolean = false;
+  isOnline = navigator.onLine;
+  isPlaying: boolean = false;
+  volumeLevel: string = 'high';
+  playbackRates: number[] = [2, 1.5, 1, 0.75, 0.5];
+  currentPlaybackRateIndex: number = 2;
+  currentTime: string = '0:00';
+  duration: string = '0:00';
+  showSpeedOptions: boolean = false;
+  chapters: { name: string; startTime: number; endTime: number }[] = [
+    { name: 'Downloading', startTime: 0, endTime: 30 },
+    { name: 'Installing', startTime: 30, endTime: 60 },
+    { name: 'Completed', startTime: 60, endTime: 68 },
+  ];
+  activeChapterIndex: number | null = null;
+}
 @Component({
   selector: 'app-custom-video-player',
   templateUrl: './custom-video-player.component.html',
   styleUrls: ['./custom-video-player.component.scss'],
 })
 export class CustomVideoPlayerComponent {
+  videoPlayerState: VideoPlayerState = new VideoPlayerState();
   @ViewChild('videoPlayer') videoPlayer!: ElementRef;
   @ViewChild('volumeSlider') volumeSlider!: ElementRef;
   @ViewChild('videoContainer') videoContainer!: ElementRef;
@@ -33,22 +51,6 @@ export class CustomVideoPlayerComponent {
   @ViewChild('playbackSpeed') playbackSpeed!: ElementRef;
   // @ViewChild('timelineIndicator') timelineIndicator!: ElementRef;
 
-  isVideoError = false;
-  isOnline = navigator.onLine;
-  currentState = this.isOnline ? 'ONLINE' : 'OFFLINE';
-  isPlaying = false;
-  volumeLevel = 'high';
-  playbackRates = [2, 1.5, 1, 0.75, 0.5];
-  currentPlaybackRateIndex = 2;
-  currentTime = '0:00';
-  duration = '0:00';
-  showSpeedOptions = false;
-  chapters = [
-    { name: 'Downloading', startTime: 0, endTime: 30 },
-    { name: 'Installing', startTime: 30, endTime: 60 },
-    { name: 'Completed', startTime: 60, endTime: 68 },
-  ];
-  activeChapterIndex: number | null = null;
   constructor(
     private renderer: Renderer2,
     private zone: NgZone,
@@ -63,11 +65,11 @@ export class CustomVideoPlayerComponent {
       this.updateVolume();
     });
     this.videoPlayer.nativeElement.addEventListener('ended', () => {
-      this.isPlaying = false;
+      this.videoPlayerState.isPlaying = false;
     });
 
     this.videoPlayer.nativeElement.addEventListener('loadedmetadata', () => {
-      this.duration = this.formatDuration(
+      this.videoPlayerState.duration = this.formatDuration(
         this.videoPlayer.nativeElement.duration
       );
     });
@@ -96,10 +98,10 @@ export class CustomVideoPlayerComponent {
   }
 
   togglePlayPause(): void {
-    this.isPlaying = !this.isPlaying;
-    if (this.isPlaying) {
+    this.videoPlayerState.isPlaying = !this.videoPlayerState.isPlaying;
+    if (this.videoPlayerState.isPlaying) {
       this.videoPlayer.nativeElement.play();
-      !this.isPlaying;
+      !this.videoPlayerState.isPlaying;
     } else {
       this.videoPlayer.nativeElement.pause();
     }
@@ -200,14 +202,16 @@ export class CustomVideoPlayerComponent {
     }
   }
   toggleSpeedOptions(): void {
-    this.showSpeedOptions = !this.showSpeedOptions;
+    this.videoPlayerState.showSpeedOptions =
+      !this.videoPlayerState.showSpeedOptions;
   }
 
   setPlaybackRate(rate: number): void {
     if (this.videoPlayer) {
       this.videoPlayer.nativeElement.playbackRate = rate;
     }
-    this.currentPlaybackRateIndex = this.playbackRates.indexOf(rate);
+    this.videoPlayerState.currentPlaybackRateIndex =
+      this.videoPlayerState.playbackRates.indexOf(rate);
 
     // Remove 'active' class from all li elements
     this.speedOptions.nativeElement
@@ -221,25 +225,25 @@ export class CustomVideoPlayerComponent {
     if (clickedLi) {
       this.renderer.addClass(clickedLi, 'active');
     }
-    this.showSpeedOptions = false;
+    this.videoPlayerState.showSpeedOptions = false;
   }
 
   @HostListener('mouseenter', ['$event'])
   onMouseEnter(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (target?.classList?.contains('playback-speed')) {
-      this.showSpeedOptions = true;
+      this.videoPlayerState.showSpeedOptions = true;
     }
   }
 
   @HostListener('mouseleave', ['$event'])
   onMouseLeave(event: MouseEvent): void {
     if (!this.speedOptions.nativeElement.contains(event.relatedTarget)) {
-      this.showSpeedOptions = false;
+      this.videoPlayerState.showSpeedOptions = false;
     }
   }
   updateTimeDisplay(): void {
-    this.currentTime = this.formatDuration(
+    this.videoPlayerState.currentTime = this.formatDuration(
       this.videoPlayer.nativeElement.currentTime
     );
     this.updateActiveChapter();
@@ -287,7 +291,7 @@ export class CustomVideoPlayerComponent {
     );
 
     // Divide the timeline into parts based on chapters
-    const timelineParts = this.chapters.map((chapter) => {
+    const timelineParts = this.videoPlayerState.chapters.map((chapter) => {
       const partStart =
         (chapter.startTime / this.videoPlayer.nativeElement.duration) * 100;
       const partEnd =
@@ -322,47 +326,43 @@ export class CustomVideoPlayerComponent {
   updateActiveChapter(): void {
     const currentTime = this.videoPlayer.nativeElement.currentTime;
 
-    for (let i = 0; i < this.chapters.length; i++) {
-      const chapter = this.chapters[i];
+    for (let i = 0; i < this.videoPlayerState.chapters.length; i++) {
+      const chapter = this.videoPlayerState.chapters[i];
       if (currentTime >= chapter.startTime && currentTime < chapter.endTime) {
-        this.activeChapterIndex = i;
+        this.videoPlayerState.activeChapterIndex = i;
         return;
       }
     }
 
     // No active chapter found, reset index
-    this.activeChapterIndex = null;
+    this.videoPlayerState.activeChapterIndex = null;
   }
   calculateChapterWidth(chapterIndex: number): number {
-    const chapter = this.chapters[chapterIndex];
+    const chapter = this.videoPlayerState.chapters[chapterIndex];
     const totalDuration = this.videoPlayer.nativeElement.duration;
     return ((chapter.endTime - chapter.startTime) / totalDuration) * 100;
   }
 
-  @HostListener('window:online', ['$event'])
-  onOnlineEvent(event: Event): void {
-    this.zone.run(() => {
-      // this.isOnline = true;
-      this.currentState = 'ONLINE';
-      // Show a snackbar or perform any other actions when back online
-    });
-  }
+  // @HostListener('window:online', ['$event'])
+  // onOnlineEvent(event: Event): void {
+  //   this.zone.run(() => {
+  //     // this.isOnline = true;
+  //     this.currentState = 'ONLINE';
+  //     // Show a snackbar or perform any other actions when back online
+  //   });
+  // }
 
   @HostListener('window:offline', ['$event'])
   onOfflineEvent(event: Event): void {
     this.zone.run(() => {
-      this.isOnline = false;
-      this.currentState = 'OFFLINE';
+      this.videoPlayerState.isOnline = false;
+      // this.currentState = 'OFFLINE';
       this.showSnackbar();
     });
   }
 
-  tryAgain(): void {
-    // This function will be called when the "Try Again" button is clicked
-    window.location.reload();
-  }
   handleVideoError() {
-    this.isVideoError = true;
+    this.videoPlayerState.isVideoError = true;
     // Disable other controls or perform additional actions as needed
   }
   showSnackbar(): void {

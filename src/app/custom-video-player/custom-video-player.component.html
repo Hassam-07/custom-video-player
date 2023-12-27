@@ -1,9 +1,12 @@
 <div
   class="video-container paused"
-  [attr.data-volume-level]="volumeLevel"
-  *ngIf="isOnline; else offlineContent"
+  [attr.data-volume-level]="videoPlayerState.volumeLevel"
+  *ngIf="videoPlayerState.isOnline; else offlineContent"
 >
-  <div class="video-controls-container" [class.error]="isVideoError">
+  <div
+    class="video-controls-container"
+    [class.error]="videoPlayerState.isVideoError"
+  >
     <div class="timeline-container" (click)="statusBarClick($event)">
       <div class="timeline" #timeline>
         <div class="thumb-indicator" #timelineIndicator></div>
@@ -18,10 +21,18 @@
     </div>
     <div class="controls">
       <button class="play-pause-btn" (click)="togglePlayPause()">
-        <svg *ngIf="!isPlaying" class="play-icon" viewBox="0 0 24 24">
+        <svg
+          *ngIf="!videoPlayerState.isPlaying"
+          class="play-icon"
+          viewBox="0 0 24 24"
+        >
           <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
         </svg>
-        <svg *ngIf="isPlaying" class="pause-icon" viewBox="0 0 24 24">
+        <svg
+          *ngIf="videoPlayerState.isPlaying"
+          class="pause-icon"
+          viewBox="0 0 24 24"
+        >
           <path fill="currentColor" d="M14,19H18V5H14M6,19H10V5H6V19Z" />
         </svg>
       </button>
@@ -58,13 +69,23 @@
         />
       </div>
       <div class="duration-container">
-        <div class="current-time" #currentTimeElem>{{ currentTime }}</div>
+        <div class="current-time" #currentTimeElem>
+          {{ videoPlayerState.currentTime }}
+        </div>
         /
-        <div class="total-time" #totalTimeElem>{{ duration }}</div>
+        <div class="total-time" #totalTimeElem>
+          {{ videoPlayerState.duration }}
+        </div>
       </div>
       <div class="chapters">
-        <div class="wrapper" *ngFor="let chapter of chapters; let i = index">
-          <button class="chapterBtn" *ngIf="activeChapterIndex === i">
+        <div
+          class="wrapper"
+          *ngFor="let chapter of videoPlayerState.chapters; let i = index"
+        >
+          <button
+            class="chapterBtn"
+            *ngIf="videoPlayerState.activeChapterIndex === i"
+          >
             <div class="tooltip">View chapter</div>
             <span class="title-prefix" aria-hidden="true">•</span>
             {{ chapter.name }}
@@ -88,13 +109,14 @@
         <ul
           class="speed-options"
           #speedOptions
-          [ngClass]="{ show: showSpeedOptions }"
+          [ngClass]="{ show: videoPlayerState.showSpeedOptions }"
         >
           <li
-            *ngFor="let rate of playbackRates"
+            *ngFor="let rate of videoPlayerState.playbackRates"
             (click)="setPlaybackRate(rate)"
             [class.active]="
-              currentPlaybackRateIndex === playbackRates.indexOf(rate)
+              videoPlayerState.currentPlaybackRateIndex ===
+              videoPlayerState.playbackRates.indexOf(rate)
             "
           >
             {{ rate }}x
@@ -123,14 +145,12 @@
     (click)="togglePlayPause()"
     src="../../assets/video1.mp4"
   ></video>
-  <div class="error-icon-container" *ngIf="isVideoError">
+  <div class="error-icon-container" *ngIf="videoPlayerState.isVideoError">
     <!-- Error icon and message -->
     <div class="error-icon"><i class="fas fa-exclamation-circle"></i></div>
     <div class="error-message">An error occurred. Please try again.</div>
   </div>
 </div>
-<!-- <ng-template> -->
-<!-- </ng-template> -->
 
 <ng-template #offlineContent>
   <!-- <div class="offline-content">
@@ -291,9 +311,9 @@
     </p>
     <button class="tryAgain-btn" (click)="tryAgain()">Try Again</button>
   </div> -->
-</ng-template>
+  <!-- </ng-template> -->
 
-<!-- <div
+  <!-- <div
   class="style-scope"
   [ngClass]="currentState === 'ONLINE' ? 'online-state' : 'offline-state'"
 >
@@ -301,3 +321,4 @@
     {{ currentState === "ONLINE" ? "Back online" : "No Internet connection" }}
   </div>
 </div> -->
+</ng-template>

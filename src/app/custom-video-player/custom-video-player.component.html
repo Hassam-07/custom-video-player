@@ -1,11 +1,11 @@
 <div
   class="video-container paused"
-  [attr.data-volume-level]="videoPlayerState.volumeLevel"
-  *ngIf="videoPlayerState.isOnline; else offlineContent"
+  [attr.data-volume-level]="initialVideoPlayerState.volumeLevel"
+  *ngIf="initialVideoPlayerState.isOnline; else offlineContent"
 >
   <div
     class="video-controls-container"
-    [class.error]="videoPlayerState.isVideoError"
+    [class.error]="initialVideoPlayerState.isVideoError"
   >
     <div class="timeline-container" (click)="statusBarClick($event)">
       <div class="timeline" #timeline>
@@ -22,14 +22,14 @@
     <div class="controls">
       <button class="play-pause-btn" (click)="togglePlayPause()">
         <svg
-          *ngIf="!videoPlayerState.isPlaying"
+          *ngIf="!initialVideoPlayerState.isPlaying"
           class="play-icon"
           viewBox="0 0 24 24"
         >
           <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
         </svg>
         <svg
-          *ngIf="videoPlayerState.isPlaying"
+          *ngIf="initialVideoPlayerState.isPlaying"
           class="pause-icon"
           viewBox="0 0 24 24"
         >
@@ -70,21 +70,24 @@
       </div>
       <div class="duration-container">
         <div class="current-time" #currentTimeElem>
-          {{ videoPlayerState.currentTime }}
+          {{ initialVideoPlayerState.currentTime }}
         </div>
         /
         <div class="total-time" #totalTimeElem>
-          {{ videoPlayerState.duration }}
+          {{ initialVideoPlayerState.duration }}
         </div>
       </div>
       <div class="chapters">
         <div
           class="wrapper"
-          *ngFor="let chapter of videoPlayerState.chapters; let i = index"
+          *ngFor="
+            let chapter of initialVideoPlayerState.chapters;
+            let i = index
+          "
         >
           <button
             class="chapterBtn"
-            *ngIf="videoPlayerState.activeChapterIndex === i"
+            *ngIf="initialVideoPlayerState.activeChapterIndex === i"
           >
             <div class="tooltip">View chapter</div>
             <span class="title-prefix" aria-hidden="true">•</span>
@@ -109,14 +112,14 @@
         <ul
           class="speed-options"
           #speedOptions
-          [ngClass]="{ show: videoPlayerState.showSpeedOptions }"
+          [ngClass]="{ show: initialVideoPlayerState.showSpeedOptions }"
         >
           <li
-            *ngFor="let rate of videoPlayerState.playbackRates"
+            *ngFor="let rate of initialVideoPlayerState.playbackRates"
             (click)="setPlaybackRate(rate)"
             [class.active]="
-              videoPlayerState.currentPlaybackRateIndex ===
-              videoPlayerState.playbackRates.indexOf(rate)
+              initialVideoPlayerState.currentPlaybackRateIndex ===
+              initialVideoPlayerState.playbackRates.indexOf(rate)
             "
           >
             {{ rate }}x
@@ -145,7 +148,10 @@
     (click)="togglePlayPause()"
     src="../../assets/video1.mp4"
   ></video>
-  <div class="error-icon-container" *ngIf="videoPlayerState.isVideoError">
+  <div
+    class="error-icon-container"
+    *ngIf="initialVideoPlayerState.isVideoError"
+  >
     <!-- Error icon and message -->
     <div class="error-icon"><i class="fas fa-exclamation-circle"></i></div>
     <div class="error-message">An error occurred. Please try again.</div>

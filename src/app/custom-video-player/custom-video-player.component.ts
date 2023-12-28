@@ -8,31 +8,33 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+// import { initialVideoPlayerState } from './initialVideoPlayerState';
+import { VideoPlayerState } from './VideoPlayerState';
 
-class VideoPlayerState {
-  isVideoError: boolean = false;
-  isOnline = navigator.onLine;
-  isPlaying: boolean = false;
-  volumeLevel: string = 'high';
-  playbackRates: number[] = [2, 1.5, 1, 0.75, 0.5];
-  currentPlaybackRateIndex: number = 2;
-  currentTime: string = '0:00';
-  duration: string = '0:00';
-  showSpeedOptions: boolean = false;
-  chapters: { name: string; startTime: number; endTime: number }[] = [
-    { name: 'Downloading', startTime: 0, endTime: 30 },
-    { name: 'Installing', startTime: 30, endTime: 60 },
-    { name: 'Completed', startTime: 60, endTime: 68 },
-  ];
-  activeChapterIndex: number | null = null;
-}
+// class initialVideoPlayerState {
+//   isVideoError: boolean = false;
+//   isOnline = navigator.onLine;
+//   isPlaying: boolean = false;
+//   volumeLevel: string = 'high';
+//   playbackRates: number[] = [2, 1.5, 1, 0.75, 0.5];
+//   currentPlaybackRateIndex: number = 2;
+//   currentTime: string = '0:00';
+//   duration: string = '0:00';
+//   showSpeedOptions: boolean = false;
+//   chapters: { name: string; startTime: number; endTime: number }[] = [
+//     { name: 'Downloading', startTime: 0, endTime: 30 },
+//     { name: 'Installing', startTime: 30, endTime: 60 },
+//     { name: 'Completed', startTime: 60, endTime: 68 },
+//   ];
+//   activeChapterIndex: number | null = null;
+// }
 @Component({
   selector: 'app-custom-video-player',
   templateUrl: './custom-video-player.component.html',
   styleUrls: ['./custom-video-player.component.scss'],
 })
 export class CustomVideoPlayerComponent {
-  videoPlayerState: VideoPlayerState = new VideoPlayerState();
+  // initialVideoPlayerState: initialVideoPlayerState = new initialVideoPlayerState();
   @ViewChild('videoPlayer') videoPlayer!: ElementRef;
   @ViewChild('volumeSlider') volumeSlider!: ElementRef;
   @ViewChild('videoContainer') videoContainer!: ElementRef;
@@ -49,8 +51,24 @@ export class CustomVideoPlayerComponent {
   @ViewChild('rangeSlider') rangeSlider!: ElementRef;
   @ViewChild('speedOptions') speedOptions!: ElementRef;
   @ViewChild('playbackSpeed') playbackSpeed!: ElementRef;
-  // @ViewChild('timelineIndicator') timelineIndicator!: ElementRef;
 
+  initialVideoPlayerState: VideoPlayerState = {
+    isVideoError: false,
+    isOnline: navigator.onLine,
+    isPlaying: false,
+    volumeLevel: 'high',
+    playbackRates: [2, 1.5, 1, 0.75, 0.5],
+    currentPlaybackRateIndex: 2,
+    currentTime: '0:00',
+    duration: '0:00',
+    showSpeedOptions: false,
+    chapters: [
+      { name: 'Downloading', startTime: 0, endTime: 30 },
+      { name: 'Installing', startTime: 30, endTime: 60 },
+      { name: 'Completed', startTime: 60, endTime: 68 },
+    ],
+    activeChapterIndex: null,
+  };
   constructor(
     private renderer: Renderer2,
     private zone: NgZone,
@@ -65,11 +83,11 @@ export class CustomVideoPlayerComponent {
       this.updateVolume();
     });
     this.videoPlayer.nativeElement.addEventListener('ended', () => {
-      this.videoPlayerState.isPlaying = false;
+      this.initialVideoPlayerState.isPlaying = false;
     });
 
     this.videoPlayer.nativeElement.addEventListener('loadedmetadata', () => {
-      this.videoPlayerState.duration = this.formatDuration(
+      this.initialVideoPlayerState.duration = this.formatDuration(
         this.videoPlayer.nativeElement.duration
       );
     });
@@ -98,10 +116,11 @@ export class CustomVideoPlayerComponent {
   }
 
   togglePlayPause(): void {
-    this.videoPlayerState.isPlaying = !this.videoPlayerState.isPlaying;
-    if (this.videoPlayerState.isPlaying) {
+    this.initialVideoPlayerState.isPlaying =
+      !this.initialVideoPlayerState.isPlaying;
+    if (this.initialVideoPlayerState.isPlaying) {
       this.videoPlayer.nativeElement.play();
-      !this.videoPlayerState.isPlaying;
+      !this.initialVideoPlayerState.isPlaying;
     } else {
       this.videoPlayer.nativeElement.pause();
     }
@@ -202,16 +221,16 @@ export class CustomVideoPlayerComponent {
     }
   }
   toggleSpeedOptions(): void {
-    this.videoPlayerState.showSpeedOptions =
-      !this.videoPlayerState.showSpeedOptions;
+    this.initialVideoPlayerState.showSpeedOptions =
+      !this.initialVideoPlayerState.showSpeedOptions;
   }
 
   setPlaybackRate(rate: number): void {
     if (this.videoPlayer) {
       this.videoPlayer.nativeElement.playbackRate = rate;
     }
-    this.videoPlayerState.currentPlaybackRateIndex =
-      this.videoPlayerState.playbackRates.indexOf(rate);
+    this.initialVideoPlayerState.currentPlaybackRateIndex =
+      this.initialVideoPlayerState.playbackRates.indexOf(rate);
 
     // Remove 'active' class from all li elements
     this.speedOptions.nativeElement
@@ -225,25 +244,25 @@ export class CustomVideoPlayerComponent {
     if (clickedLi) {
       this.renderer.addClass(clickedLi, 'active');
     }
-    this.videoPlayerState.showSpeedOptions = false;
+    this.initialVideoPlayerState.showSpeedOptions = false;
   }
 
   @HostListener('mouseenter', ['$event'])
   onMouseEnter(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (target?.classList?.contains('playback-speed')) {
-      this.videoPlayerState.showSpeedOptions = true;
+      this.initialVideoPlayerState.showSpeedOptions = true;
     }
   }
 
   @HostListener('mouseleave', ['$event'])
   onMouseLeave(event: MouseEvent): void {
     if (!this.speedOptions.nativeElement.contains(event.relatedTarget)) {
-      this.videoPlayerState.showSpeedOptions = false;
+      this.initialVideoPlayerState.showSpeedOptions = false;
     }
   }
   updateTimeDisplay(): void {
-    this.videoPlayerState.currentTime = this.formatDuration(
+    this.initialVideoPlayerState.currentTime = this.formatDuration(
       this.videoPlayer.nativeElement.currentTime
     );
     this.updateActiveChapter();
@@ -291,13 +310,15 @@ export class CustomVideoPlayerComponent {
     );
 
     // Divide the timeline into parts based on chapters
-    const timelineParts = this.videoPlayerState.chapters.map((chapter) => {
-      const partStart =
-        (chapter.startTime / this.videoPlayer.nativeElement.duration) * 100;
-      const partEnd =
-        (chapter.endTime / this.videoPlayer.nativeElement.duration) * 100;
-      return { partStart, partEnd };
-    });
+    const timelineParts = this.initialVideoPlayerState.chapters.map(
+      (chapter) => {
+        const partStart =
+          (chapter.startTime / this.videoPlayer.nativeElement.duration) * 100;
+        const partEnd =
+          (chapter.endTime / this.videoPlayer.nativeElement.duration) * 100;
+        return { partStart, partEnd };
+      }
+    );
 
     const borderSize = 0.2; // Adjust the border size as needed
 
@@ -326,43 +347,44 @@ export class CustomVideoPlayerComponent {
   updateActiveChapter(): void {
     const currentTime = this.videoPlayer.nativeElement.currentTime;
 
-    for (let i = 0; i < this.videoPlayerState.chapters.length; i++) {
-      const chapter = this.videoPlayerState.chapters[i];
+    for (let i = 0; i < this.initialVideoPlayerState.chapters.length; i++) {
+      const chapter = this.initialVideoPlayerState.chapters[i];
       if (currentTime >= chapter.startTime && currentTime < chapter.endTime) {
-        this.videoPlayerState.activeChapterIndex = i;
+        this.initialVideoPlayerState.activeChapterIndex = i;
         return;
       }
     }
 
     // No active chapter found, reset index
-    this.videoPlayerState.activeChapterIndex = null;
+    this.initialVideoPlayerState.activeChapterIndex = null;
   }
   calculateChapterWidth(chapterIndex: number): number {
-    const chapter = this.videoPlayerState.chapters[chapterIndex];
+    const chapter = this.initialVideoPlayerState.chapters[chapterIndex];
     const totalDuration = this.videoPlayer.nativeElement.duration;
     return ((chapter.endTime - chapter.startTime) / totalDuration) * 100;
   }
 
-  // @HostListener('window:online', ['$event'])
-  // onOnlineEvent(event: Event): void {
-  //   this.zone.run(() => {
-  //     // this.isOnline = true;
-  //     this.currentState = 'ONLINE';
-  //     // Show a snackbar or perform any other actions when back online
-  //   });
-  // }
+  @HostListener('window:online', ['$event'])
+  onOnlineEvent(event: Event): void {
+    this.zone.run(() => {
+      this.initialVideoPlayerState.isOnline = navigator.onLine;
+      this.initialVideoPlayerState.isOnline = true;
+      // this.currentState = 'ONLINE';
+      // Show a snackbar or perform any other actions when back online
+    });
+  }
 
   @HostListener('window:offline', ['$event'])
   onOfflineEvent(event: Event): void {
     this.zone.run(() => {
-      this.videoPlayerState.isOnline = false;
+      this.initialVideoPlayerState.isOnline = false;
       // this.currentState = 'OFFLINE';
       this.showSnackbar();
     });
   }
 
   handleVideoError() {
-    this.videoPlayerState.isVideoError = true;
+    this.initialVideoPlayerState.isVideoError = true;
     // Disable other controls or perform additional actions as needed
   }
   showSnackbar(): void {

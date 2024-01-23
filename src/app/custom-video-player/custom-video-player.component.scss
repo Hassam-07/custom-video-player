@@ -140,14 +140,14 @@
         .mute-btn {
           width: 26px;
           height: 26px;
-          .volume-high-icon,
-          .volume-low-icon,
-          .volume-muted-icon {
-            // width: 100%;
-            // height: 100%;
-            font-size: 1.2rem;
-            // padding-top: 8px;
-          }
+        }
+        .volume-high-icon,
+        .volume-low-icon,
+        .volume-muted-icon {
+          // width: 100%;
+          // height: 100%;
+          font-size: 1.2rem;
+          // padding-top: 8px;
         }
         &:hover {
           .volume-slider {
@@ -199,16 +199,16 @@
           }
         }
 
-        .mute-btn {
-          .volume-muted-icon,
-          .volume-low-icon {
-            display: none;
-          }
-          .volume-high-icon {
-            display: block;
-            cursor: pointer;
-          }
-        }
+        // .mute-btn {
+        //   .volume-muted-icon,
+        //   .volume-low-icon {
+        //     display: none;
+        //   }
+        //   .volume-high-icon {
+        //     display: block;
+        //     cursor: pointer;
+        //   }
+        // }
       }
 
       .duration-container {
@@ -464,37 +464,37 @@
     }
   }
 
-  &[data-volume-level="high"] {
-    .video-controls-container {
-      .volume-container {
-        .mute-btn {
-          .volume-high-icon {
-            display: block;
-          }
-        }
-      }
-    }
-  }
-  &[data-volume-level="low"] {
-    .video-controls-container {
-      .volume-container {
-        .mute-btn {
-          .volume-low-icon {
-            display: block;
-          }
-        }
-      }
-    }
-  }
-  &[data-volume-level="muted"] {
-    .video-controls-container {
-      .volume-container {
-        .volume-muted-icon {
-          display: block;
-        }
-      }
-    }
-  }
+  // &[data-volume-level="high"] {
+  //   .video-controls-container {
+  //     .volume-container {
+  //       .mute-btn {
+  //         .volume-high-icon {
+  //           display: block;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+  // &[data-volume-level="low"] {
+  //   .video-controls-container {
+  //     .volume-container {
+  //       .mute-btn {
+  //         .volume-low-icon {
+  //           display: block;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+  // &[data-volume-level="muted"] {
+  //   .video-controls-container {
+  //     .volume-container {
+  //       .volume-muted-icon {
+  //         display: block;
+  //       }
+  //     }
+  //   }
+  // }
   ng-container {
     display: flex;
     position: absolute;

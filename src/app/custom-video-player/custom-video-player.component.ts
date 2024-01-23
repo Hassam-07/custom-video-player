@@ -10,47 +10,36 @@ import {
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 // import { initialVideoPlayerState } from './initialVideoPlayerState';
 import { VideoPlayerState } from './VideoPlayerState';
-
-// class initialVideoPlayerState {
-//   isVideoError: boolean = false;
-//   isOnline = navigator.onLine;
-//   isPlaying: boolean = false;
-//   volumeLevel: string = 'high';
-//   playbackRates: number[] = [2, 1.5, 1, 0.75, 0.5];
-//   currentPlaybackRateIndex: number = 2;
-//   currentTime: string = '0:00';
-//   duration: string = '0:00';
-//   showSpeedOptions: boolean = false;
-//   chapters: { name: string; startTime: number; endTime: number }[] = [
-//     { name: 'Downloading', startTime: 0, endTime: 30 },
-//     { name: 'Installing', startTime: 30, endTime: 60 },
-//     { name: 'Completed', startTime: 60, endTime: 68 },
-//   ];
-//   activeChapterIndex: number | null = null;
-// }
 @Component({
   selector: 'app-custom-video-player',
   templateUrl: './custom-video-player.component.html',
   styleUrls: ['./custom-video-player.component.scss'],
 })
 export class CustomVideoPlayerComponent {
-  // initialVideoPlayerState: initialVideoPlayerState = new initialVideoPlayerState();
-  @ViewChild('videoPlayer') videoPlayer!: ElementRef;
-  @ViewChild('volumeSlider') volumeSlider!: ElementRef;
-  @ViewChild('videoContainer') videoContainer!: ElementRef;
+  @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('volumeSlider') volumeSliderRef!: ElementRef;
+  @ViewChild('videoContainer') videoContainerRef!: ElementRef;
+  @ViewChild('timelineIndicator') timelineIndicatorRef!: ElementRef;
+  @ViewChild('timelineProgress') timelineProgressRef!: ElementRef;
+  @ViewChild('timeline', { static: true }) timelineRef!: ElementRef;
+  @ViewChild('currentTimeElem') currentTimeElemRef!: ElementRef;
+  @ViewChild('totalTimeElem') totalTimeElemRef!: ElementRef;
+  @ViewChild('rangeSlider') rangeSliderRef!: ElementRef;
+  @ViewChild('speedOptions') speedOptionsRef!: ElementRef;
+  @ViewChild('playbackSpeed') playbackSpeedRef!: ElementRef;
 
-  @ViewChild('muteButton') muteButton!: ElementRef;
-  @ViewChild('volumeHighIcon') volumeHighIcon!: ElementRef;
-  @ViewChild('volumeLowIcon') volumeLowIcon!: ElementRef;
-  @ViewChild('volumeMutedIcon') volumeMutedIcon!: ElementRef;
-  @ViewChild('timelineIndicator') timelineIndicator!: ElementRef;
-  @ViewChild('timelineProgress') timelineProgress!: ElementRef;
-  @ViewChild('timeline', { static: true }) timeline!: ElementRef;
-  @ViewChild('currentTimeElem') currentTimeElem!: ElementRef;
-  @ViewChild('totalTimeElem') totalTimeElem!: ElementRef;
-  @ViewChild('rangeSlider') rangeSlider!: ElementRef;
-  @ViewChild('speedOptions') speedOptions!: ElementRef;
-  @ViewChild('playbackSpeed') playbackSpeed!: ElementRef;
+  videoPlayer!: HTMLVideoElement;
+  volumeSlider!: ElementRef;
+  videoContainer!: ElementRef;
+  timelineIndicator!: ElementRef;
+  timelineProgress!: ElementRef;
+  timeline!: ElementRef;
+  currentTimeElem!: ElementRef;
+  totalTimeElem!: ElementRef;
+  rangeSlider!: ElementRef;
+  speedOptions!: ElementRef;
+  playbackSpeed!: ElementRef;
+  duration!: number;
 
   initialVideoPlayerState: VideoPlayerState = {
     isVideoError: false,
@@ -75,32 +64,49 @@ export class CustomVideoPlayerComponent {
     private snackBar: MatSnackBar
   ) {}
   ngAfterViewInit(): void {
-    this.videoPlayer.nativeElement.addEventListener('timeupdate', () => {
-      this.updateTimeDisplay();
-      this.updateTimeline();
-    });
-    this.videoPlayer?.nativeElement.addEventListener('volumechange', () => {
-      this.updateVolume();
-    });
-    this.videoPlayer.nativeElement.addEventListener('ended', () => {
-      this.initialVideoPlayerState.isPlaying = false;
-    });
+    if (
+      this.videoPlayerRef &&
+      this.volumeSliderRef &&
+      this.videoContainerRef &&
+      this.timelineIndicatorRef &&
+      this.timelineProgressRef &&
+      this.timelineRef &&
+      this.currentTimeElemRef &&
+      this.totalTimeElemRef &&
+      this.rangeSliderRef &&
+      this.speedOptionsRef &&
+      this.playbackSpeedRef
+    ) {
+      this.videoPlayer = this.videoPlayerRef.nativeElement;
+      this.timeline = this.timelineRef.nativeElement;
+      this.timelineIndicator = this.timelineIndicatorRef.nativeElement;
+      this.timelineProgress = this.timelineProgressRef.nativeElement;
+      this.currentTimeElem = this.currentTimeElemRef.nativeElement;
+      this.totalTimeElem = this.totalTimeElemRef.nativeElement;
+      this.rangeSlider = this.rangeSliderRef.nativeElement;
 
-    this.videoPlayer.nativeElement.addEventListener('loadedmetadata', () => {
-      this.initialVideoPlayerState.duration = this.formatDuration(
-        this.videoPlayer.nativeElement.duration
-      );
-    });
-    this.onVolumeChange();
+      this.videoPlayer = this.videoPlayerRef.nativeElement;
+      this.volumeSlider = this.volumeSliderRef.nativeElement;
+      this.videoContainer = this.videoContainerRef.nativeElement;
+      this.timelineIndicator = this.timelineIndicatorRef.nativeElement;
+      this.timelineProgress = this.timelineProgressRef.nativeElement;
+      this.timeline = this.timelineRef.nativeElement;
+      this.currentTimeElem = this.currentTimeElemRef.nativeElement;
+      this.totalTimeElem = this.totalTimeElemRef.nativeElement;
+      this.rangeSlider = this.rangeSliderRef.nativeElement;
+      this.speedOptions = this.speedOptionsRef.nativeElement;
+      this.playbackSpeed = this.playbackSpeedRef.nativeElement;
+      this.onVolumeChange();
+    }
   }
   onVolumeChange(): void {
     // const volumeSlider = document.querySelector('.volume-slider') as HTMLInputElement;
-    const volumeValue = parseFloat(this.rangeSlider.nativeElement.value);
+    const volumeValue = parseFloat(this.rangeSliderRef.nativeElement.value);
 
     const fillPercentage = (volumeValue * 100).toFixed(2);
     const backgroundGradient = `linear-gradient(to right, #fff 0%, #fff ${fillPercentage}%, #a3a3a3 ${fillPercentage}%, #a3a3a3 100%)`;
 
-    this.rangeSlider.nativeElement.style.background = backgroundGradient;
+    this.rangeSliderRef.nativeElement.style.background = backgroundGradient;
   }
 
   statusBarClick($event: MouseEvent) {
@@ -109,51 +115,43 @@ export class CustomVideoPlayerComponent {
     const totalWidth = el.offsetWidth;
 
     const percentComplete = clickX / totalWidth;
-    const duration = this.videoPlayer.nativeElement.duration;
+    const duration = this.videoPlayerRef.nativeElement.duration;
 
     // Seek to the corresponding time
-    this.videoPlayer.nativeElement.currentTime = duration * percentComplete;
+    this.videoPlayerRef.nativeElement.currentTime = duration * percentComplete;
   }
 
   togglePlayPause(): void {
     this.initialVideoPlayerState.isPlaying =
       !this.initialVideoPlayerState.isPlaying;
     if (this.initialVideoPlayerState.isPlaying) {
-      this.videoPlayer.nativeElement.play();
+      this.videoPlayerRef.nativeElement.play();
       !this.initialVideoPlayerState.isPlaying;
     } else {
-      this.videoPlayer.nativeElement.pause();
+      this.videoPlayerRef.nativeElement.pause();
     }
   }
 
   toggleMute(): void {
-    this.videoPlayer.nativeElement.muted =
-      !this.videoPlayer.nativeElement.muted;
+    this.videoPlayerRef.nativeElement.muted =
+      !this.videoPlayerRef.nativeElement.muted;
 
     this.toggleVolumeIcons();
   }
   private toggleVolumeIcons(): void {
-    const { volumeHighIcon, volumeLowIcon, volumeMutedIcon } = this;
-
-    if (this.videoPlayer.nativeElement.muted) {
-      // Display volume-muted-icon
-      this.renderer.setStyle(volumeMutedIcon.nativeElement, 'display', 'block');
-      // Hide volume-high-icon and volume-low-icon
-      this.renderer.setStyle(volumeHighIcon.nativeElement, 'display', 'none');
-      this.renderer.setStyle(volumeLowIcon.nativeElement, 'display', 'none');
+    if (this.videoPlayerRef.nativeElement.muted) {
+      this.initialVideoPlayerState.volumeLevel = 'muted';
+    } else if (this.videoPlayerRef.nativeElement.volume >= 0.5) {
+      this.initialVideoPlayerState.volumeLevel = 'high';
     } else {
-      // Display volume-high-icon
-      this.renderer.setStyle(volumeHighIcon.nativeElement, 'display', 'block');
-      // Hide volume-muted-icon and volume-low-icon
-      this.renderer.setStyle(volumeMutedIcon.nativeElement, 'display', 'none');
-      this.renderer.setStyle(volumeLowIcon.nativeElement, 'display', 'none');
+      this.initialVideoPlayerState.volumeLevel = 'low';
     }
   }
   @HostListener('input', ['$event'])
   onVolumeSliderChange(event: any): void {
     const volumeValue = event.target.value;
-    this.videoPlayer.nativeElement.volume = volumeValue;
-    this.videoPlayer.nativeElement.muted = volumeValue === '0';
+    this.videoPlayerRef.nativeElement.volume = volumeValue;
+    this.videoPlayerRef.nativeElement.muted = volumeValue === '0';
 
     // Update volume level and apply it to the container dataset
     this.updateVolume();
@@ -161,18 +159,18 @@ export class CustomVideoPlayerComponent {
 
   updateVolume(): void {
     const volumeLevel = this.calculateVolumeLevel();
-    this.videoContainer.nativeElement.dataset.volumeLevel = volumeLevel;
+    this.videoContainerRef.nativeElement.dataset.volumeLevel = volumeLevel;
   }
 
   calculateVolumeLevel(): string {
-    const volume = this.videoPlayer.nativeElement.volume;
+    const volume = this.videoPlayerRef.nativeElement.volume;
 
-    if (this.videoPlayer.nativeElement.muted || volume === 0) {
-      // this.volumeSlider.nativeElement.value = '0';
+    if (this.videoPlayerRef.nativeElement.muted || volume === 0) {
+      // this.volumeSlider.value = '0';
       this.toggleVolumeSliderIcons('muted');
       return 'muted';
     } else if (volume >= 0.5) {
-      // this.volumeSlider.nativeElement.value = '0';
+      // this.volumeSlider.value = '0';
       this.toggleVolumeSliderIcons('high');
       return 'high';
     } else {
@@ -182,39 +180,15 @@ export class CustomVideoPlayerComponent {
   }
 
   toggleVolumeSliderIcons(level: string): void {
-    const { volumeHighIcon, volumeLowIcon, volumeMutedIcon } = this;
-
     switch (level) {
       case 'muted':
-        this.renderer.setStyle(
-          volumeMutedIcon.nativeElement,
-          'display',
-          'block'
-        );
-        this.renderer.setStyle(volumeHighIcon.nativeElement, 'display', 'none');
-        this.renderer.setStyle(volumeLowIcon.nativeElement, 'display', 'none');
+        this.initialVideoPlayerState.volumeLevel = 'muted';
         break;
       case 'high':
-        this.renderer.setStyle(
-          volumeHighIcon.nativeElement,
-          'display',
-          'block'
-        );
-        this.renderer.setStyle(
-          volumeMutedIcon.nativeElement,
-          'display',
-          'none'
-        );
-        this.renderer.setStyle(volumeLowIcon.nativeElement, 'display', 'none');
+        this.initialVideoPlayerState.volumeLevel = 'high';
         break;
       case 'low':
-        this.renderer.setStyle(volumeLowIcon.nativeElement, 'display', 'block');
-        this.renderer.setStyle(volumeHighIcon.nativeElement, 'display', 'none');
-        this.renderer.setStyle(
-          volumeMutedIcon.nativeElement,
-          'display',
-          'none'
-        );
+        this.initialVideoPlayerState.volumeLevel = 'low';
         break;
       default:
         break;
@@ -226,19 +200,19 @@ export class CustomVideoPlayerComponent {
   }
 
   setPlaybackRate(rate: number): void {
-    if (this.videoPlayer) {
-      this.videoPlayer.nativeElement.playbackRate = rate;
+    if (this.videoPlayerRef) {
+      this.videoPlayerRef.nativeElement.playbackRate = rate;
     }
     this.initialVideoPlayerState.currentPlaybackRateIndex =
       this.initialVideoPlayerState.playbackRates.indexOf(rate);
 
     // Remove 'active' class from all li elements
-    this.speedOptions.nativeElement
+    this.speedOptionsRef.nativeElement
       .querySelectorAll('li')
       .forEach((li: HTMLElement) => {
         this.renderer.removeClass(li, 'active');
       });
-    const clickedLi = this.speedOptions.nativeElement.querySelector(
+    const clickedLi = this.speedOptionsRef.nativeElement.querySelector(
       `[data-speed="${rate}"]`
     );
     if (clickedLi) {
@@ -257,13 +231,13 @@ export class CustomVideoPlayerComponent {
 
   @HostListener('mouseleave', ['$event'])
   onMouseLeave(event: MouseEvent): void {
-    if (!this.speedOptions.nativeElement.contains(event.relatedTarget)) {
+    if (!this.speedOptionsRef.nativeElement.contains(event.relatedTarget)) {
       this.initialVideoPlayerState.showSpeedOptions = false;
     }
   }
   updateTimeDisplay(): void {
     this.initialVideoPlayerState.currentTime = this.formatDuration(
-      this.videoPlayer.nativeElement.currentTime
+      this.videoPlayerRef.nativeElement.currentTime
     );
     this.updateActiveChapter();
   }
@@ -281,30 +255,31 @@ export class CustomVideoPlayerComponent {
     return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
   }
   skip(duration: any): void {
-    this.videoPlayer.nativeElement.currentTime += duration;
+    this.videoPlayerRef.nativeElement.currentTime += duration;
   }
 
   toggleFullScreen(): void {
-    if (this.videoPlayer.nativeElement.requestFullscreen) {
-      this.videoPlayer.nativeElement.requestFullscreen();
-    } else if (this.videoPlayer.nativeElement.mozRequestFullScreen) {
-      this.videoPlayer.nativeElement.mozRequestFullScreen();
-    } else if (this.videoPlayer.nativeElement.webkitRequestFullscreen) {
-      this.videoPlayer.nativeElement.webkitRequestFullscreen();
-    } else if (this.videoPlayer.nativeElement.msRequestFullscreen) {
-      this.videoPlayer.nativeElement.msRequestFullscreen();
+    if (this.videoPlayerRef.nativeElement.requestFullscreen) {
+      this.videoPlayerRef.nativeElement.requestFullscreen();
     }
+    // else if (this.videoPlayerRef.nativeElement.requestFullScreen) {
+    //   this.videoPlayerRef.nativeElement.mozRequestFullScreen();
+    // } else if (this.videoPlayerRef.nativeElement.webkitRequestFullscreen) {
+    //   this.videoPlayerRef.nativeElement.webkitRequestFullscreen();
+    // } else if (this.videoPlayerRef.nativeElement.msRequestFullscreen) {
+    //   this.videoPlayerRef.nativeElement.msRequestFullscreen();
+    // }
   }
 
   updateTimeline(): void {
     const percentComplete =
-      (this.videoPlayer.nativeElement.currentTime /
-        this.videoPlayer.nativeElement.duration) *
+      (this.videoPlayerRef.nativeElement.currentTime /
+        this.videoPlayerRef.nativeElement.duration) *
       100;
 
     // Move the timeline indicator
     this.renderer.setStyle(
-      this.timelineIndicator.nativeElement,
+      this.timelineIndicatorRef.nativeElement,
       'left',
       percentComplete + '%'
     );
@@ -313,9 +288,10 @@ export class CustomVideoPlayerComponent {
     const timelineParts = this.initialVideoPlayerState.chapters.map(
       (chapter) => {
         const partStart =
-          (chapter.startTime / this.videoPlayer.nativeElement.duration) * 100;
+          (chapter.startTime / this.videoPlayerRef.nativeElement.duration) *
+          100;
         const partEnd =
-          (chapter.endTime / this.videoPlayer.nativeElement.duration) * 100;
+          (chapter.endTime / this.videoPlayerRef.nativeElement.duration) * 100;
         return { partStart, partEnd };
       }
     );
@@ -341,11 +317,15 @@ export class CustomVideoPlayerComponent {
     });
 
     // Update the timeline progress
-    this.renderer.setStyle(this.timeline.nativeElement, 'background', gradient);
+    this.renderer.setStyle(
+      this.timelineRef.nativeElement,
+      'background',
+      gradient
+    );
   }
 
   updateActiveChapter(): void {
-    const currentTime = this.videoPlayer.nativeElement.currentTime;
+    const currentTime = this.videoPlayerRef.nativeElement.currentTime;
 
     for (let i = 0; i < this.initialVideoPlayerState.chapters.length; i++) {
       const chapter = this.initialVideoPlayerState.chapters[i];
@@ -360,7 +340,7 @@ export class CustomVideoPlayerComponent {
   }
   calculateChapterWidth(chapterIndex: number): number {
     const chapter = this.initialVideoPlayerState.chapters[chapterIndex];
-    const totalDuration = this.videoPlayer.nativeElement.duration;
+    const totalDuration = this.videoPlayerRef.nativeElement.duration;
     return ((chapter.endTime - chapter.startTime) / totalDuration) * 100;
   }
 
@@ -394,5 +374,25 @@ export class CustomVideoPlayerComponent {
     config.panelClass = ['custom-snackbar-class'];
     config.duration = 5000;
     const snackBarRef = this.snackBar.open(message, action, config);
+  }
+
+  onTimeUpdate(): void {
+    this.updateTimeDisplay();
+    this.updateTimeline();
+  }
+
+  onVolumeUpdate(): void {
+    this.updateVolume();
+  }
+
+  onVideoEnded(): void {
+    this.initialVideoPlayerState.isPlaying = false;
+  }
+
+  onVideoLoadedMetadata(): void {
+    this.initialVideoPlayerState.duration = this.formatDuration(
+      // this.videoPlayer.duration
+      (this.duration = this.videoPlayerRef.nativeElement.duration)
+    );
   }
 }

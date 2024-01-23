@@ -30,17 +30,27 @@
         ></i>
       </button>
       <div class="volume-container">
-        <button class="mute-btn" #muteButton (click)="toggleMute()">
-          <i #volumeHighIcon class="fas fa-volume-up volume-high-icon"></i>
-          <i #volumeLowIcon class="fas fa-volume-down volume-low-icon"></i>
-          <i #volumeMutedIcon class="fas fa-volume-slash volume-muted-icon"></i>
+        <button
+          class="mute-btn"
+          (click)="toggleMute()"
+          class="fas"
+          [ngClass]="{
+            'fa-volume-slash volume-muted-icon':
+              initialVideoPlayerState.volumeLevel === 'muted',
+            'fa-volume-up volume-high-icon':
+              initialVideoPlayerState.volumeLevel === 'high',
+            'fa-volume-down volume-low-icon':
+              initialVideoPlayerState.volumeLevel === 'low'
+          }"
+        >
+          <i></i>
         </button>
         <input
           class="volume-slider"
           type="range"
           min="0"
           max="1"
-          step="any"
+          step="0.1"
           value="1"
           #rangeSlider
           (input)="onVolumeChange()"
@@ -124,6 +134,10 @@
     #videoPlayer
     (error)="handleVideoError()"
     (click)="togglePlayPause()"
+    (timeupdate)="onTimeUpdate()"
+    (volumechange)="onVolumeUpdate()"
+    (ended)="onVideoEnded()"
+    (loadedmetadata)="onVideoLoadedMetadata()"
     src="../../assets/video1.mp4"
   ></video>
   <div

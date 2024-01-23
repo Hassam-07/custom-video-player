@@ -22,12 +22,11 @@
     <div class="controls">
       <button class="play-pause-btn" (click)="togglePlayPause()">
         <i
-          *ngIf="!initialVideoPlayerState.isPlaying"
-          class="fas fa-play play-icon"
-        ></i>
-        <i
-          *ngIf="initialVideoPlayerState.isPlaying"
-          class="fas fa-pause pause-icon"
+          class="fas"
+          [ngClass]="{
+          'fa-play play-icon': !initialVideoPlayerState.isPlaying,
+          'fa-pause pause-icon': initialVideoPlayerState.isPlaying,
+        }"
         ></i>
       </button>
       <div class="volume-container">
